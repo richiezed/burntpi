@@ -1,0 +1,1 @@
+sudo touch "$SD_MOUNT1/ssh"

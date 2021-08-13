@@ -1,0 +1,14 @@
+---
+
+image: "lite"
+module:
+  ssh: true
+  timezone: "Australia/Melbourne"
+  wifi: true
+    ssid: "Crazy SSID"
+    psk: "password1"
+  hostname: "coolnewpi"
+  staticip: true
+    ethip: "192.168.1.100"
+    wlanip: "192.168.1.1"
+    gatewayip: "192.168.1.1"
