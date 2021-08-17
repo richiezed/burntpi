@@ -99,13 +99,18 @@ fi
 sudo mount "$SD_DEVICE"1 $SD_MOUNT1
 sudo mount "$SD_DEVICE"2 $SD_MOUNT2
 
-# Execute the moduloe helper scripts
+# Execute the module helper scripts defined in theconfig file
 
-. modules/ssh.sh
-. modules/wifi.sh
-. modules/staticip.sh
-. modules/hostname.sh
-. modules/timezone.sh
+compgen -A variable | grep ^config_module_[a-zA-Z]*[^_]$ | while read -r line ; do
+    echo "Found config for $line. Calling $(echo $line | sed 's/config_module_//').sh helper script"
+    . modules/$(echo $line | sed 's/config_module_//').sh
+done
+
+#. modules/ssh.sh
+#. modules/wifi.sh
+#. modules/staticip.sh
+#. modules/hostname.sh
+#. modules/timezone.sh
 
 # Finally clean up
 
