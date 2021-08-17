@@ -65,7 +65,7 @@ SD_DEVICE="/dev/$DEVICE_NAME"
 
 # Burn the image
 
-if [ -b "$SD_DEVICE"3 ]; then
+if [ -b "$SD_DEVICE"1 ]; then
     echo "Partitions exist, I'm too scared to write over them, use fdisk to delete before running again."
     exit
 else
