@@ -106,22 +106,28 @@ sudo mount "$SD_DEVICE"2 $SD_MOUNT2
 # Execute the module helper scripts defined in theconfig file
 
 compgen -A variable | grep ^config_module_[a-zA-Z]*[^_]$ | while read -r line ; do
+    MODULE_SCRIPT=
     echo "Found config for $line. Calling $(echo $line | sed 's/config_module_//').sh helper script"
     . $SCRIPT_DIR/modules/$(echo $line | sed 's/config_module_//').sh
 done
 
 FIRST_BOOT=$SD_MOUNT2/home/pi/firstboot
 
-compgen -A variable | grep ^config_software_[a-zA-Z]*[^_]$ | while read -r line ; do
+
+compgen -A variable | grep ^config_software_[a-zA-Z]*[^_]$ | while read -r section ; do
     if [ ! -d "$FIRST_BOOT" ]; then
         mkdir -p $FIRST_BOOT
         . $SCRIPT_DIR/firstboot.sh
     fi
-    echo "Found config for $line. Copying install_$(echo $line | sed 's/config_software_//').sh build script"
-    cp $SCRIPT_DIR/builds/install_$(echo $line | sed 's/config_software_//').sh $FIRST_BOOT
+    BUILD_SCRIPT=install_$(echo $section | sed 's/config_software_//').sh
+    echo "Found config for $section. Copying $BUILD_SCRIPT build script"
+    cp $SCRIPT_DIR/builds/$BUILD_SCRIPT $FIRST_BOOT
+    compgen -A variable | grep "^"$section"_[a-zA-Z]*[^_]$" | while read -r sectionconfig ; do
+        echo "Found config for $sectionconfig"
+        echo $FIRST_BOOT/$BUILD_SCRIPT
+        sed -i "1s/^/$sectionconfig=${!sectionconfig}\n/" $FIRST_BOOT/$BUILD_SCRIPT
+    done
 done
-
-
 
 # Finally clean up
 
