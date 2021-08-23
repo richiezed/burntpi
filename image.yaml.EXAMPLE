@@ -16,3 +16,6 @@ module:
     defaultuser:
       pass: password1
       pubkey: keys/mypubkey.pub
+software:
+  docker: true
+    compose: true

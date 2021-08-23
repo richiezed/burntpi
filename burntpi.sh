@@ -69,7 +69,7 @@ SD_DEVICE="/dev/$DEVICE_NAME"
 
 # Burn the image
 
-if [ -b "$SD_DEVICE"3 ]; then
+if [ -b "$SD_DEVICE"1 ]; then
     echo "Partitions exist, I'm too scared to write over them, use fdisk to delete before running again."
     exit
 else
@@ -109,6 +109,19 @@ compgen -A variable | grep ^config_module_[a-zA-Z]*[^_]$ | while read -r line ; 
     echo "Found config for $line. Calling $(echo $line | sed 's/config_module_//').sh helper script"
     . $SCRIPT_DIR/modules/$(echo $line | sed 's/config_module_//').sh
 done
+
+FIRST_BOOT=$SD_MOUNT2/home/pi/firstboot
+
+compgen -A variable | grep ^config_software_[a-zA-Z]*[^_]$ | while read -r line ; do
+    if [ ! -d "$FIRST_BOOT" ]; then
+        mkdir -p $FIRST_BOOT
+        . $SCRIPT_DIR/firstboot.sh
+    fi
+    echo "Found config for $line. Copying install_$(echo $line | sed 's/config_software_//').sh build script"
+    cp $SCRIPT_DIR/builds/install_$(echo $line | sed 's/config_software_//').sh $FIRST_BOOT
+done
+
+
 
 # Finally clean up
 
