@@ -9,6 +9,10 @@ LITE_PATH="https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_l
 STANDARD_PATH="https://downloads.raspberrypi.org/raspios_armhf/images/raspios_armhf-2021-05-28/2021-05-07-raspios-buster-armhf.zip"
 FULL_PATH="https://downloads.raspberrypi.org/raspios_full_armhf/images/raspios_full_armhf-2021-05-28/2021-05-07-raspios-buster-armhf-full.zip"
 
+LITE_64BIT_PATH="https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2021-05-28/2021-05-07-raspios-buster-arm64-lite.zip"
+STANDARD_64BIT_PATH="https://downloads.raspberrypi.org/raspios_arm64/images/raspios_arm64-2021-05-28/2021-05-07-raspios-buster-arm64.zip"
+#Full not available in 64bitbut leaving it in your calendar
+
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 WORKING_DIR=$HOME/.burntpi
 mkdir -p $WORKING_DIR
@@ -25,18 +29,26 @@ eval $(parse_yaml image.yaml "config_")
 
 # Confirm that the image has been configured correctly
 
-if [ -z "$config_image" ] ; then
-    echo "Need to set image type. USAGE: image: [ lite | standard | full ]"
+if [ -z "$config_image_type" ] ; then
+    echo -e "Need to set image type.\nUSAGE:\nimage\n  type: [ lite | standard | full ]"
     exit 1
 fi
 
 image_types=(lite standard full)
 
-case $config_image in
+case $config_image_type in
     lite ) RASPOS_PATH=$LITE_PATH;;
     standard ) RASPOS_PATH=$STANDARD_PATH;;
     full ) RASPOS_PATH=$FULL_PATH;;
-    * ) echo "Incorrect image type. USAGE: image: [ lite | standard | full ]"; exit;;
+    * ) echo -e "Need to set image type.\nUSAGE:\nimage\n  type: [ lite | standard | full ]"; exit;;
+esac
+
+image_archs=(armhf arm64)
+
+case $config_image_arch in
+    armhf ) RASPOS_PATH=$RASPOS_PATH;;
+    arm64 ) RASPOS_PATH=${RASPOS_PATH//armhf/arm64};;
+    * ) echo -e "Incorrect image architecture.\nUSAGE:\nimage\n  arch: [ armhf | arm64 ]"; exit;;
 esac
 
 # Confirm that the timezone has been configured correctly
@@ -59,10 +71,16 @@ fi
 
 RASPOS_FILE=`basename $RASPOS_PATH`
 
+set +e
 if [ ! -f "$WORKING_DIR/images/$RASPOS_FILE" ]; then
-    echo "$RASPOS_FILE does not exist. Downloading..."
+    echo "$RASPOS_FILE not in local cache. Downloading..."
     wget -P $WORKING_DIR/images $RASPOS_PATH
+    if [ $? -ne 0 ]; then
+        echo "Please check image configuration as it appears there is no type=$config_image_type for arch=$config_image_arch"
+        exit
+    fi
 fi
+set -e
 
 IMAGE_FILE="$WORKING_DIR/images/$RASPOS_FILE"
 SD_DEVICE="/dev/$DEVICE_NAME"
