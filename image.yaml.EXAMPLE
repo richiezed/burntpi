@@ -1,6 +1,8 @@
 ---
 
-image: "lite"
+image:
+  type: "lite"
+  arch: arm64
 module:
   ssh: true
   timezone: "Australia/Melbourne"

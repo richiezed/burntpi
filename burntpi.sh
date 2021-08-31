@@ -17,7 +17,7 @@ SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 WORKING_DIR=$HOME/.burntpi
 mkdir -p $WORKING_DIR
 
-set -e
+#set -e
 
 # Load the configuration
 . $SCRIPT_DIR/readconfig.sh
@@ -80,7 +80,7 @@ if [ ! -f "$WORKING_DIR/images/$RASPOS_FILE" ]; then
         exit
     fi
 fi
-set -e
+#set -e
 
 IMAGE_FILE="$WORKING_DIR/images/$RASPOS_FILE"
 SD_DEVICE="/dev/$DEVICE_NAME"
@@ -131,7 +131,7 @@ done
 
 FIRST_BOOT=$SD_MOUNT2/home/pi/firstboot
 
-
+# Enumerate config to find each software build to be configured
 compgen -A variable | grep ^config_software_[a-zA-Z]*[^_]$ | while read -r section ; do
     if [ ! -d "$FIRST_BOOT" ]; then
         mkdir -p $FIRST_BOOT
@@ -140,6 +140,11 @@ compgen -A variable | grep ^config_software_[a-zA-Z]*[^_]$ | while read -r secti
     BUILD_SCRIPT=install_$(echo $section | sed 's/config_software_//').sh
     echo "Found config for $section. Copying $BUILD_SCRIPT build script"
     cp $SCRIPT_DIR/builds/$BUILD_SCRIPT $FIRST_BOOT
+    # Provide details of the image config to the build scripts
+    compgen -A variable | grep "^config_image_[a-zA-Z]*[^_]$" | while read -r imageconfig ; do
+        sed -i "1s/^/$imageconfig=${!imageconfig}\n/" $FIRST_BOOT/$BUILD_SCRIPT
+    done
+    # Provide custom config to each build script
     compgen -A variable | grep "^"$section"_[a-zA-Z]*[^_]$" | while read -r sectionconfig ; do
         echo "Found config for $sectionconfig"
         echo $FIRST_BOOT/$BUILD_SCRIPT
