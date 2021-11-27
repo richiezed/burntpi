@@ -15,4 +15,4 @@ module:
   credentials: true
     defaultuser:
       pass: password1
-      pubkey: @PATH/mypubkey.pub
+      pubkey: $PATH/mypubkey.pub

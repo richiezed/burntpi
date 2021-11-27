@@ -1,6 +1,8 @@
 ---
 
-image: "lite"
+image:
+  size: "lite"
+  arch: arm64
 module:
   ssh: true
   timezone: "Australia/Melbourne"
@@ -19,6 +21,7 @@ module:
 software:
   docker: true
     compose: true
+    sudogroup: true
   squeezelite: true
     server: "192.168.1.4"
     playername: study
