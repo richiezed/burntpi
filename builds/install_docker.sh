@@ -17,3 +17,8 @@ if [ "$config_software_docker_compose" = true ] ; then
     sudo apt install -y python3 python3-pip
     sudo pip3 install docker-compose
 fi
+
+if [ "$config_software_docker_sudogroup" = true ] ; then
+    echo "Allow docker to run without using sudo"
+    sudo usermod -aG docker pi
+fi
