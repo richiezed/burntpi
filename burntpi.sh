@@ -1,5 +1,5 @@
 #! /bin/bash
-## USAGE ./image.sh
+## USAGE ./image.sh [configfile]
 ## Configuration is read from image.yaml in the same directory
 
 ## Standard paths to image files
@@ -20,6 +20,19 @@ mkdir -p $WORKING_DIR
 #set -e
 
 # Load the configuration
+
+CONFIG_FILE=$PWD/"image.yaml"
+
+if [ ! -z "$1" ]; then
+    if [ -f "$1" ]; then
+        CONFIG_FILE="$1"
+    else
+        echo $1 does not exist
+        exit
+    fi
+fi
+echo Loading config file: "$CONFIG_FILE"
+
 . $SCRIPT_DIR/readconfig.sh
 eval $(parse_yaml image.yaml "config_")
 
